@@ -1,0 +1,30 @@
+{
+  "name": "sliden",
+  "license": "MIT",
+  "version": "0.1.0",
+  "author": "Dan Rosén",
+  "description": "Slides",
+  "main": "./dist/bundle.js",
+  "dependencies": {
+    "csstips": "^0.2.2",
+    "snabbdom": "^0.7.0",
+    "typestyle": "^1.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.26",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.3.0",
+    "assert": "^1.4.1",
+    "awesome-typescript-loader": "^3.0.3",
+    "jsverify": "^0.8.3",
+    "lodash": "^4.17.4",
+    "source-map-loader": "^0.1.5",
+    "ts-node": "^3.3.0",
+    "typescript": "^2.1.5",
+    "uglifyjs-webpack-plugin": "^0.4.6"
+  },
+  "scripts": {
+    "start": "webpack-dev-server --hot",
+    "build": "NODE_ENV=production webpack"
+  }
+}
