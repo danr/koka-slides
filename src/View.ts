@@ -57,8 +57,8 @@ const Slide = style(
 
 const div =
   (main_class: string = '') =>
-  (s: any, ...cls: string[]) =>
-  h('div', {classes: [main_class, ...cls]}, s)
+  (s: string | (VNode | null | undefined)[], ...cls: string[]) =>
+  h('div', {classes: [main_class, ...cls]}, s as any)
 
 const Code = style(
   { fontSize: '5vh' },
@@ -74,6 +74,13 @@ const small = div(style(
   csstips.padding(0, '2vw')
 ))
 
+const Border = div(style(
+  {border: '1vh ' + col2 + ' solid',
+   height: 'calc(100% - 1vh)',
+   borderRadius: '1vh'
+  },
+  //csstips.padding(0, '2vw')
+))
 
 const title = div(style(
   {fontSize: '11vh'},
@@ -99,18 +106,55 @@ const header = div(style(
   csstips.padding(0, '2vw')
 ))
 
-const content = div(style(
-  {fontSize: '8vh'},
+const bullet = div(style(
+  {fontSize: '7vh'},
   {
     $nest: {
       '&::before': {
         'content': `'\u25cf'`,
-        fontSize: '10vh',
+        fontSize: '8vh',
         paddingRight: '2vw',
         color: col2
       }
     }
   },
+  csstips.padding(0, '2vw')
+))
+
+const underbullet = div(style(
+  {fontSize: '7vh'},
+  {
+    $nest: {
+      '&::before': {
+        'content': `'\u25b6'`,
+        fontSize: '5vh',
+        paddingRight: '2vw',
+        color: col2
+      }
+    }
+  },
+  csstips.padding(0, '9vw')
+))
+
+
+const smallbullet = div(style(
+  {fontSize: '6vh'},
+  {
+    $nest: {
+      '&::before': {
+        'content': `'\u25cf'`,
+        fontSize: '4vh',
+        paddingRight: '2vw',
+        color: col2
+      }
+    }
+  },
+  csstips.padding(0, '2vw')
+))
+
+
+const content = div(style(
+  {fontSize: '8vh'},
   csstips.padding(0, '2vw')
 ))
 
@@ -129,7 +173,10 @@ const unveil = (xs: VNode[]) => {
 }
 
 const SideBySide = (...xs : VNode[][]) =>
-   div(style(csstips.horizontal))(
+   div(style(csstips.horizontal,
+             csstips.horizontallySpaced('1vh'),
+             {flexGrow: 1},
+               ))(
      xs.map((x: VNode[]) => div(style(csstips.flex1))(x))
    )
 
@@ -140,18 +187,42 @@ const slides: VNode[] = [
   ],
   ...unveil(
   [header('Elon Musk motivates space travel:'),
-   content('"I want the future to be exciting"'),
+   bullet('"I want the future to be exciting"'),
    header('Me motivating effect types:'),
-   content('"I want programming to be exciting"'),
+   bullet('"I want programming to be exciting"'),
   ]),
+  [header('Motivation'),
+   SideBySide(
+     [Border([
+      content('Python/JS/...'),
+      smallbullet('yield'),
+      smallbullet('async/await'),
+      smallbullet('list comprehensions'),
+      smallbullet('exceptions'),
+     ])],
+     [Border([
+      content('Haskell monads:'),
+      smallbullet("do notation"),
+      smallbullet("transformers for composition"),
+      smallbullet("code duplication: both map and mapM"),
+     ])],
+   ) /*,
+     Border([
+      content('Other FP:'),
+      smallbullet("need to solve this in some way"),
+      smallbullet("static types"),
+      smallbullet("strict"),
+     ], style({height: '40%'}))
+     */
+  ],
   ...unveil(
   [header('We need to talk about control flow'),
-   content('or we miss out on a lot of fun'),
-   content('or we miss out on expressivity'),
-   content('possibly in a lot of pain'),
-   content('reinventing the wheel'),
+   bullet('or we miss out on a lot of fun'),
+   bullet('or we miss out on expressivity'),
+   bullet('possibly in a lot of pain'),
+   bullet('reinventing the wheel'),
+   punch('Real world examples!'),
   ]),
-  [header('Real world examples!')],
   [header('Generators in ES2015'),
    code(
 `function* countAppleSales () {
@@ -164,7 +235,10 @@ const slides: VNode[] = [
   [header('yield from, python3.3 (2009)'),
    SideBySide([
      small('PEP 380: Syntax for Delegating to a Subgenerator'),
-     code(`RESULT = yield from EXPR`, Small),
+     code(`for x in EXPR:
+  yield x`, Small),
+     small('introduces:'),
+     code(`yield from EXPR`, Small),
      small('is semantically equivalent to:'),
    ], [code(
 `_i = iter(EXPR)
@@ -208,67 +282,140 @@ else:
 RESULT = _r`, style({fontSize: '1.5vh'}))])
   ],
   [header('async/await, ES2017'),
-   code(`function foo() {
-  return fetch('https://swapi.co/api')
+   code(`function foo(url) {
+  return fetch(url)
     .then(response => response.json())
     .then(obj => obj.name)
    }`),
-   code(`async function foo() {
-  const response = await fetch('https://swapi.co/api');
-  const parsedResponse = await response.json();
-  return parsedResponse.name;
+   code(`async function foo(url) {
+  const response = await fetch(url);
+  const obj = await response.json();
+  return obj.name;
 }`)
   ],
-  [header('async comprehensions, python 3.6 (2016)'),
-   small('PEP 530 -- Asynchronous Comprehensions'),
+  [header('async/await in python'),
+   bullet('bleeds into every construct:'),
    code(`result = []
 async for i in aiter():
     if i % 2:
         result.append(i)`),
-   small('With the proposed asynchronous comprehensions syntax, the above code becomes as short as:'),
-   code(`result = [i async for i in aiter() if i % 2]`)
+   bullet('PEP 530 -- Asynchronous Comprehensions'),
+   code(`result = [i async for i in aiter() if i % 2]`),
+   //small('With the proposed asynchronous comprehensions syntax, the above code becomes as short as:'),
   ],
   ...unveil(
   [header('Control flow structures'),
-   content('exceptions'),
-   content('yield (generators)'),
-   content('async-await'),
-   content('foreach, list comprehensions'),
+   bullet('exceptions'),
+   bullet('yield (generators)'),
+   bullet('async-await'),
+   bullet('foreach, list comprehensions'),
    punch('algebraic effects can express all of these & interactions between them')
   ]),
-  [header('Small-step semantics'),
-   content('Image from paper?'),
+  ...unveil(
+  [header('Algebraic effects'),
+   code(`effect throws {
+    raise(s: string): a
+}`),
+   code(`raise: string -> a ! throws`),
+   code(`function try(p: () -> r ! throws,
+             catch: string -> r): r {
+  handle p() {
+    case raise(s), resume: catch(s)
+    case done(x): x
+  }
+}`)]),
+  [header('Demo'),
+   bullet('Daan: koka'),
+   bullet("Dan: EffectScript")
   ],
-  [header('Types'),
-   content('arrows with effects A -> B ! E'),
-   content('row types, polymorphic in the tail'),
-   content('duplicate labels or absence fields'),
+  [header('async/await'),
+   code(`effect ajax {
+  fetch(url: string, data: json): json
+}`),
+   code(`handle p() {
+  case fetch(url, data), resume:
+    JS_ajax(url, data, result => resume(result))
+  case done(x): x
+}`)],
+  [header('async/await mock'),
+   code(`effect ajax {
+  fetch(url: string, data: json): json
+}`),
+   code(`handle p() {
+  case fetch(url, data), resume:
+    resume({name: "Estelle"})
+  case done(x): x
+}`),
   ],
+  ...unveil([header('Row polymorphism'),
+   code(`t ::= t -> t ! e | string | int | x | ...
+e ::= l(t...); e | <> | a`),
+   code(`itermap(f: A -> B ! E,
+        p: () -> R ! iter<A> ; F)
+        : R ! iter<B> ! E + F`, style({color: red})),
+   code(`itermap(f: A -> B ! E,
+        p: () -> R ! iter<A> ; E)
+        : R ! iter<B> ; E`, style({color: green}))
+  ]),
+  [header('Row polymorphism fields'),
+   code('l1(t); l2(t); E = l2(t); l1(t); E      l1/=l2'),
+   bullet('duplicate labels (koka) or absence fields:'),
+   code(`sig state : (s) ->
+       (Comp({Get:s,Put:(s) {}-> ()|e},a))
+       -> Comp({Get{_},Put{_}|e},a)`)
+  ],
+  ...unveil([header('Small-step semantics'),
+   code(`v ::= f | x | 1 | ... | function f(x...) { e }
+e ::= v(v...) | x = e; e | handle e { cases }
+                         | switch v { cases }`),
+   code(`C ::= [] | x = C; e | handle C { cases }`),
+  ]),
+  ...unveil([header('Small-step semantics'),
+   code(`C ::= [] | x = C; e | handle C { cases }`),
+   code(`handle v { cases } -> e[v/x]
+  case done(x): e \u2208 cases`),
+  code(`handle C[op(v)] { cases } ->
+  e[v/x, y => handle C[y] { cases } / resume]
+
+  case op(x), resume: e \u2208 cases`)
+  ]),
   [header('Compilation to JavaScript'),
-   content('run-type information if code is in CPS or not'),
-   content('selective CPS translation'),
-   content('some effects handled by JS (heap & references)'),
-   content('alternative: effect conversion'),
+   bullet('transfrom code to CPS, now contexts are:'),
+   code(`C ::= [] | handle C { cases }`),
+   bullet('run time system with stack of handlers'),
+  ],
+  [header('Polymorphic duplication'),
+   code('map(xs: List<a>, f: a -> b ! e): List<b> ! e'),
+   code(`(xs, f, k) => if k
+                 then mapCPS(xs, f, k)
+                 else mapPlain(xs, f)`),
   ],
   // can we make a case for state effects
   // at the same time as these? hum-de-dum...
   // maybe we can be an argument for purity and
   // having state as an effect
   [header('Gains from a Haskell perspective'),
-   content('no do-notation'),
-   content('no duplicate code for monadic and non-monadic functions'),
-   content('compose (no mtl, MonadTrans)'),
-   content('"mockable"'),
-   content('run functions easier to write as >>= does not need to be defined'),
-   content('monad laws satisfied automatically'),
-   content('enforces strict evaluation: no more abusing laziness and lists'),
+   bullet('no do-notation'),
+   bullet('no duplicate code'),
+   bullet('compose (no mtl, MonadTrans)'),
+   bullet('"mockable"'),
+   bullet('no >>=: run functions easier to write'),
+   bullet('strict evaluation: no more abusing lazy lists'),
+  ],
+  [header('Drawbacks'),
+   bullet('scoping'),
+   underbullet('examples "Effect Handlers in Scope"'),
+   bullet('efficiency?'),
+   underbullet('monads carry their implementation'),
+   underbullet('multiple resumptions'),
   ],
   ...unveil([header('Conclusions'),
-   content('control flow is important'),
-   content('solve common issues once and for all'),
-   content('in a composable (and mockable) manner'),
-   content('a very expressive language with a very small core'),
-   content('seamless tracking of impurities in a language with imperative feel'),
+   bullet('control flow is important'),
+   bullet('solve common issues once and for all'),
+   bullet('in a composable (and mockable) manner'),
+   bullet('language with few constructs yet expressive'),
+   bullet('all impurities tracked yet imperative feel'),
+   code('github.com/danr/koka-slides'),
   ])
 ].map((slide, i, self) =>
   h('div', {

@@ -8,6 +8,10 @@ Daan Leijen, POPL 2017
 
 - [Type Directed Compilation of Row-Typed Algebraic Effects](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/12/algeff.pdf)  
   Daan Leijen.
+  
+## The slides 
+
+- [Slides](http://demo.spraakdata.gu.se/dan/koka-slides/)
 
 ## Related reading
 
